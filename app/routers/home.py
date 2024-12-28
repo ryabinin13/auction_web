@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, Response, Depends, Cookie 
+from fastapi import APIRouter, Response
 from app.services.regservice import RegistrationService
 from app.services.authservice import AuthService
 from app.schemas import RegistrationBody, LoginBody
-from app import config, security
+from app import config
 
 
-home_router = APIRouter()
+home_router = APIRouter(tags=["Auth"])
 
 @home_router.post("/registration")
 def registration(data: RegistrationBody):

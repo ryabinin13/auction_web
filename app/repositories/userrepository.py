@@ -12,12 +12,14 @@ class UserRepository(CRUDRepository, GetUserEmail):
             username=data['username'], 
             email=data['email'], 
             password_hash=data['password_hash'], 
-            birthday=data['birthday']
+            birthday=data['birthday'],
+            phone_number = data['phone_number']
         )
 
         self.db.add(user)
         self.db.commit()
-        return user.id
+        
+        return user.email
 
     def get_id(self, id: int):
         return self.db.query(User).where(User.id == id).first()
@@ -28,15 +30,16 @@ class UserRepository(CRUDRepository, GetUserEmail):
     def getall(self):
         return self.db.query(User).all()
 
-    def update(self, id: int, data: dict):
-        user = self.db.query(User).filter(User.id == id).update(data)
-        # user = self.db.query(User).where(User.id == id).first()
-
-        # user.username=data['username'], 
-        # user.email=data['email'], 
-        # user.password_hash=data['password_hash'], 
-        # user.birthday=data['birthday']
-
+    def update(self, user: User, data: dict):
+        user = User(
+            id = user.id,
+            username=data['username'], 
+            email=data['email'], 
+            password_hash=data['password_hash'], 
+            birthday=data['birthday'],
+            phone_number = data['phone_number']
+        )
+        self.db.merge(user)
         self.db.commit()
         return user.id
 

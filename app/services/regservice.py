@@ -8,6 +8,8 @@ class RegistrationService:
     def registration(self, data: RegistrationBody):
         if UserRepository().get_email(data.email):
             raise HTTPException(status_code=409, detail="Пользователь с таким email уже существует")
+        if len(data.password1) < 6:
+            raise HTTPException(status_code=400, detail="Минимальная длина пароля должна быть равна 6")
         if not data.password1 == data.password2:
             raise HTTPException(status_code=400, detail="Пароли не совпадают")
 

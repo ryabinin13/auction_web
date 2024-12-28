@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from fastapi.security import OAuth2PasswordBearer
 from authx import AuthX, AuthXConfig
 
 app = FastAPI()
@@ -11,7 +10,7 @@ config.JWT_SECRET_KEY = "JWT_TOKEN_AUCTION_WEB"
 config.JWT_ACCESS_COOKIE_NAME = "auction_token"
 config.JWT_TOKEN_LOCATION = ["cookies"]
 config.JWT_ALGORITHM = "HS256"
-config.JWT_ACCESS_TOKEN_EXPIRES = 30
+config.JWT_ACCESS_TOKEN_EXPIRES = 300
 
 security = AuthX(config=config)
 
