@@ -3,7 +3,7 @@ from app.repositories.userrepository import UserRepository
 from app.schemas import LoginBody
 from werkzeug.security import check_password_hash
 from fastapi import HTTPException, Request
-from app import security, config
+from app.auth import security, config
 from app.models import User
 import jwt
 

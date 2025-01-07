@@ -1,5 +1,5 @@
 from app.repositories.baserepository import CRUDRepository
-from app import SessionLocal
+from app.database import SessionLocal
 from app.models import Product, User, Bet
 
 class BetRepository(CRUDRepository):

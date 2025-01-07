@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
-from app import Base
+from app.database import Base
 import enum
 
 
@@ -13,8 +13,10 @@ class User(Base):
     password_hash = Column(String, index=True)
     birthday = Column(Date)
     phone_number = Column(String)
+    sex = Column(String)
 
-    products = relationship("Product", back_populates="user")
+    products = relationship("Product", back_populates="user", foreign_keys="[Product.user_id]")
+    products_won = relationship("Product", back_populates="user_winner", foreign_keys="[Product.user_id]")
     bids = relationship("Bet", back_populates="user")
 
 
@@ -34,8 +36,10 @@ class Product(Base):
     start_date = Column(DateTime)
     end_date = Column(DateTime)
     status = Column(Enum(ProductStatus), default=ProductStatus.ACTIVE)
+    current_winner_id = Column(Integer, ForeignKey('users.id'))
 
-    user = relationship("User", back_populates="products")
+    user = relationship("User", back_populates="products", foreign_keys=[user_id])
+    user_winner = relationship("User", back_populates="products_won", foreign_keys=[user_id])
     bids = relationship("Bet", back_populates="product")
 
     def to_dict(self):
@@ -47,7 +51,9 @@ class Product(Base):
             'start_price': self.start_price,
             'current_price': self.current_price,
             'start_date': self.start_date,
-            'end_date': self.end_date
+            'end_date': self.end_date,
+            'status': self.status,
+            'current_winner_id': self.current_winner_id
          }
 
 class Bet(Base):

@@ -1,5 +1,5 @@
 from app.repositories.baserepository import CRUDRepository
-from app import SessionLocal
+from app.database import SessionLocal
 from app.models import Product, User
 
 class ProductRepository(CRUDRepository):
@@ -15,7 +15,8 @@ class ProductRepository(CRUDRepository):
             start_date = data['start_date'],
             end_date = data['end_date'],
             start_price = data['start_price'],
-            current_price = data['current_price']
+            current_price = data['current_price'],
+            current_winner_id = None
         )
         self.db.add(product)
         self.db.commit()
@@ -40,7 +41,8 @@ class ProductRepository(CRUDRepository):
             end_date = data['end_date'],
             start_price = data['start_price'],
             current_price = data['current_price'],
-            status = data['status']
+            status = data['status'],
+            current_winner_id = data['current_winner_id']
         )
         self.db.merge(product)
         self.db.commit()

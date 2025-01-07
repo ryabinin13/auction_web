@@ -1,12 +1,11 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Response
 from app.dependencies import get_current_user
 from app.services.userservice import UserService
-from app import config
+from app.auth import config
 from app.schemas import BetBody, ProductBody
 from app.models import User
 
 user_router = APIRouter(tags=["User"])
-
 
 @user_router.get("/logout")
 def logout(response: Response, current_user: User = Depends(get_current_user)):

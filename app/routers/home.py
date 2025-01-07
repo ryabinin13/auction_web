@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response
 from app.services.regservice import RegistrationService
 from app.services.authservice import AuthService
 from app.schemas import RegistrationBody, LoginBody
-from app import config
+from app.auth import config
 
 
 home_router = APIRouter(tags=["Auth"])

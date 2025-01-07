@@ -1,6 +1,6 @@
 from datetime import datetime
 from fastapi import HTTPException
-from app.models import User
+from app.models import ProductStatus, User
 from app.repositories.userrepository import UserRepository
 from app.repositories.productrepository import ProductRepository
 from app.repositories.betrepository import BetRepository
@@ -25,19 +25,21 @@ class UserService:
         if not product:
             raise HTTPException(status_code=404, detail="Товар не найден")
         
+        if product.status == ProductStatus.COMPLETED:
+            raise HTTPException(status_code=400, detail="Аукцион завершен")
+        
         if product.current_price >= data.bet_price:
             raise HTTPException(status_code=400, detail="Ставка дожна быть выше, чем текущая")
         
         product_data = product.to_dict()
         product_data['current_price'] = data.bet_price
-        ProductRepository().update(product.id, product_data)
+        product_data['current_winner_id'] = user.id
+        ProductRepository().update(product, product_data)
         return BetRepository().create(data_dict, user, product)
     
-
-
 
     def delete_product(self, user: User, id: int):
         for product in user.products:
             if product.id == id:
-                return UserRepository().delete(id)
+                return ProductRepository().delete(id)
         raise HTTPException(status_code=404, detail="Товар не найден")

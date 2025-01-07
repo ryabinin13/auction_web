@@ -1,5 +1,5 @@
 import jwt
-from app import config
+from app.auth import config
 from fastapi import HTTPException, Request
 from app.repositories.userrepository import UserRepository
 
