@@ -1,29 +1,29 @@
 version: '3.8'
 
-services: 
-  app: 
-    container_name: auction_project
-    build: ./
+services:
+  web:
+    container_name: auction_web
+    build: .
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn app.main:app --host 0.0.0.0'
+    volumes:
+      - .:/app
+    ports:
+      - 8008:8000
+    environment:
+      - DATABASE_URL=postgresql://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
     depends_on:
       - db
-    command: bash -c 'while !</dev/tcp/postgres/5432; do sleep 1; done; uvicorn app.main:app --host 0.0.0.0 --port 8000'
-    volumes:
-      - ./app:/src/app
-    ports:
-      - ${APP_HOST_PORT}:8000
-    restart: always
-    env_file:
-      - .env
-
   db:
-    container_name: postgres_auction
-    image: postgres
-    environment:
-      - POSTGRES_DB=auction
-      - POSTGRES_USER=${POSTGRESS_DB_USER}
-      - POSTGRES_PASSWORD=${POSTGRESS_DB_PASSWORD}
-    ports:
-      - ${POSTGRESS_DB_HOST_PORT}:5432
+    container_name: auction_db
+    image: postgres:15-alpine
     volumes:
-      - .postgres:/var/lib/postgres/data
-    restart: always
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=fastapi_traefik
+      - POSTGRES_PASSWORD=fastapi_traefik
+      - POSTGRES_DB=fastapi_traefik
+
+volumes:
+  postgres_data:

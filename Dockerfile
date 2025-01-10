@@ -1,12 +1,15 @@
-FROM python:3.10
+FROM python:3.11.1-slim
 
-WORKDIR /src
+# set work directory
+WORKDIR /app
 
+# set env variables
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONBUFFERED 1
+ENV PYTHONUNBUFFERED 1
 
-COPY requirements.txt requirements.txt
+# install dependencies
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
-
-COPY ./app app
+# copy project
+COPY . .

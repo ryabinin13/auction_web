@@ -1,5 +1,6 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Response
 from app.dependencies import get_current_user
+from app.repositories.userrepository import UserRepository
 from app.services.userservice import UserService
 from app.auth import config
 from app.schemas import BetBody, ProductBody
@@ -28,3 +29,8 @@ def start_auction(productbody: ProductBody, bg: BackgroundTasks, current_user: U
 @user_router.post("/make_bet")
 def make_bet(product_id : int, betbody: BetBody, current_user: User = Depends(get_current_user)):
     return UserService().create_bet(current_user, product_id, betbody)
+
+
+@user_router.get("/test")
+def make_bet():
+    return "hello"
