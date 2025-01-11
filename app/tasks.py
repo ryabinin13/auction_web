@@ -1,9 +1,10 @@
 import asyncio
+import time
 from app.models import ProductStatus
 from app.repositories.productrepository import ProductRepository
 from datetime import datetime
 
-async def check_end_auction(auction_id):
+def check_end_auction(auction_id):
     while True:
         product = ProductRepository().get_id(auction_id)
         now = datetime.utcnow()
@@ -13,7 +14,7 @@ async def check_end_auction(auction_id):
             product_data['status'] = ProductStatus.COMPLETED
             ProductRepository().update(product, product_data)
             break
-        await asyncio.sleep(60)
+        time.sleep(60)
 
     
 
