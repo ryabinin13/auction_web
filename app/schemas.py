@@ -6,7 +6,6 @@ class RegistrationBody(BaseModel):
     username: str
     email: EmailStr
     birthday: date
-    sex: str
     phone_number: str
     password1: str
     password2: str

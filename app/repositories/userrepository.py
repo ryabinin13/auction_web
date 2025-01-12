@@ -4,20 +4,13 @@ from app.repositories.baserepository import CRUDRepository, GetUserEmail
 
 class UserRepository(CRUDRepository, GetUserEmail):
 
-    def create(self, data: dict) -> None:
+    def create(self, data: dict):
         with get_session() as db:
-            user = User(
-                username=data['username'], 
-                email=data['email'], 
-                password_hash=data['password_hash'], 
-                birthday=data['birthday'],
-                phone_number = data['phone_number']
-            )
-
+            user = User(**data)
             db.add(user)
             db.commit()
             
-            return None
+            return user.id
 
     def get_id(self, id: int) -> User:
         with get_session() as db:
@@ -34,23 +27,19 @@ class UserRepository(CRUDRepository, GetUserEmail):
 
     def update(self, user: User, data: dict) -> None:
         with get_session() as db:
-            user = User(
-                id = user.id,
-                username=data['username'], 
-                email=data['email'], 
-                password_hash=data['password_hash'], 
-                birthday=data['birthday'],
-                phone_number = data['phone_number']
-            )
+            user = User(**data)
             db.merge(user)
             db.commit()
             return None
 
     def delete(self, id: int) -> None:
         with get_session() as db:
-            db = db
             user = db.query(User).filter(User.id == id).delete()
             db.commit()
             return None
+
+    def get_products(self, id: int):
+        with get_session() as db:
+            return db.query(User).where(User.id == id).first().products_create
 
 

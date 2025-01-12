@@ -43,3 +43,9 @@ class UserService:
             if product.id == id:
                 return ProductRepository().delete(id)
         raise HTTPException(status_code=404, detail="Товар не найден")
+    
+    def my_products(self, user_id: int):
+        return UserRepository().get_products(user_id)
+    
+    def check_product(self, product_id:int):
+        return ProductRepository().get_id(product_id)

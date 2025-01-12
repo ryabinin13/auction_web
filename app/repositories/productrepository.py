@@ -6,16 +6,7 @@ class ProductRepository(CRUDRepository):
 
     def create(self, data: dict, user: User):
         with get_session() as db:
-            product = Product(
-                name =  data['name'],
-                discription = data['discription'],
-                user_id = user.id,
-                start_date = data['start_date'],
-                end_date = data['end_date'],
-                start_price = data['start_price'],
-                current_price = data['current_price'],
-                current_winner_id = None
-            )
+            product = Product(**data)
             db.add(product)
             db.commit()
             return product.id
@@ -33,18 +24,7 @@ class ProductRepository(CRUDRepository):
 
     def update(self, product: Product, data: dict):
         with get_session() as db:
-            product = Product(
-                id = product.id,
-                name =  data['name'],
-                discription = data['discription'],
-                user_id = data['user_id'],
-                start_date = data['start_date'],
-                end_date = data['end_date'],
-                start_price = data['start_price'],
-                current_price = data['current_price'],
-                status = data['status'],
-                current_winner_id = data['current_winner_id']
-            )
+            product = Product(**data)
             db.merge(product)
             db.commit()
             return product

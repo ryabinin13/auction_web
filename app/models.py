@@ -1,24 +1,27 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime, Enum
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.database import Base
+from datetime import datetime, date
 import enum
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, index=True)
-    email = Column(String, index=True)
-    password_hash = Column(String, index=True)
-    birthday = Column(Date)
-    phone_number = Column(String)
-    sex = Column(String)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str]
+    email: Mapped[str]
+    password_hash: Mapped[str]
+    birthday: Mapped[date]
+    phone_number: Mapped[str]
 
-    products = relationship("Product", back_populates="user", foreign_keys="[Product.user_id]")
-    products_won = relationship("Product", back_populates="user_winner", foreign_keys="[Product.user_id]")
-    bids = relationship("Bet", back_populates="user")
-
+    products_create: Mapped[list["Product"]] = relationship(
+        "Product", back_populates="user_create", foreign_keys="[Product.user_id]"
+    )
+    products_won: Mapped[list["Product"]] = relationship(
+        "Product", back_populates="user_winner", foreign_keys="[Product.current_winner_id]"
+    )
+    user_bids: Mapped[list["Bet"]] = relationship(back_populates="user_bet")
 
 class ProductStatus(enum.Enum):
         ACTIVE = "active"
@@ -27,20 +30,25 @@ class ProductStatus(enum.Enum):
 class Product(Base):
     __tablename__ = "products"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    discription = Column(String)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    start_price = Column(Integer)
-    current_price = Column(Integer)
-    start_date = Column(DateTime)
-    end_date = Column(DateTime)
-    status = Column(Enum(ProductStatus), default=ProductStatus.ACTIVE)
-    current_winner_id = Column(Integer, ForeignKey('users.id'))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    discription: Mapped[str]
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    start_price: Mapped[int]
+    current_price: Mapped[int]
+    start_date: Mapped[datetime]
+    end_date: Mapped[datetime]
+    status: Mapped[ProductStatus] = mapped_column(Enum(ProductStatus), default=ProductStatus.ACTIVE)
+    current_winner_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
 
-    user = relationship("User", back_populates="products", foreign_keys=[user_id])
-    user_winner = relationship("User", back_populates="products_won", foreign_keys=[user_id])
-    bids = relationship("Bet", back_populates="product")
+
+    user_create: Mapped["User"] = relationship(
+        "User", back_populates="products_create", foreign_keys="[Product.user_id]"
+    )
+    user_winner: Mapped["User"] = relationship(
+        "User", back_populates="products_won", foreign_keys="[Product.current_winner_id]"
+    )
+    product_bids: Mapped[list["Bet"]] = relationship(back_populates="product_bet")
 
     def to_dict(self):
         return {
@@ -56,13 +64,14 @@ class Product(Base):
             'current_winner_id': self.current_winner_id
          }
 
+
 class Bet(Base):
     __tablename__ = "bids"
 
-    id = Column(Integer, primary_key=True, index=True)
-    bet_price = Column(Integer)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    product_id= Column(Integer, ForeignKey('products.id'))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    bet_price: Mapped[int]
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
 
-    product = relationship("Product", back_populates="bids")
-    user = relationship("User", back_populates="bids")
+    product_bet: Mapped["Product"] = relationship(back_populates="product_bids")
+    user_bet: Mapped["User"] = relationship(back_populates="user_bids")

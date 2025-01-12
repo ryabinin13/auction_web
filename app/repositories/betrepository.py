@@ -6,11 +6,7 @@ class BetRepository(CRUDRepository):
 
     def create(self, data: dict, user: User, product: Product):
         with get_session() as db:
-            bet = Bet(
-                user_id = user.id,
-                product_id = product.id, 
-                bet_price = data['bet_price']
-            )
+            bet = Bet(**data)
             db.add(bet)
             db.commit()
             return bet.id
