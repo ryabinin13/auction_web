@@ -8,19 +8,19 @@ from app.auth import config
 home_router = APIRouter(tags=["Auth"])
 
 @home_router.post("/registration")
-def registration(data: RegistrationBody, request: Request):
+async def registration(data: RegistrationBody, request: Request):
     token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
     if not token:
-        return RegistrationService().registration(data)
+        return await RegistrationService().registration(data)
     raise HTTPException(status_code=403, detail="Сначала выйдете из системы")
     
 
 
 @home_router.post("/login")
-def login(loginbody: LoginBody, response: Response, request: Request):
+async def login(loginbody: LoginBody, response: Response, request: Request):
     token = request.cookies.get(config.JWT_ACCESS_COOKIE_NAME)
     if not token:
-        user = AuthService().authenticate_user(loginbody)
+        user = await AuthService().authenticate_user(loginbody)
         token = AuthService().generate_token(user)
         response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token)
         return {"access_token": token}

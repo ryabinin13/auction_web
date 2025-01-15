@@ -5,8 +5,8 @@ from fastapi import HTTPException
 
 class RegistrationService:
 
-    def registration(self, data: RegistrationBody):
-        if UserRepository().get_email(data.email):
+    async def registration(self, data: RegistrationBody):
+        if await UserRepository().get_email(data.email):
             raise HTTPException(status_code=409, detail="Пользователь с таким email уже существует")
         if len(data.password1) < 6:
             raise HTTPException(status_code=400, detail="Минимальная длина пароля должна быть равна 6")
@@ -17,4 +17,4 @@ class RegistrationService:
         data_dict = data.model_dump(exclude={"password1", "password2"})
         data_dict["password_hash"] = password_hash
 
-        return UserRepository().create(data_dict)
+        return await UserRepository().create(data_dict)

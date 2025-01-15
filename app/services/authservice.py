@@ -9,8 +9,8 @@ import jwt
 
 class AuthService:
 
-    def authenticate_user(self, loginbody: LoginBody):
-        user = UserRepository().get_email(loginbody.email)
+    async def authenticate_user(self, loginbody: LoginBody):
+        user = await UserRepository().get_email(loginbody.email)
         if not user:
             raise HTTPException(status_code=404, detail="Пользователя с таким email не существует")
         if not check_password_hash(user.password_hash, loginbody.password):

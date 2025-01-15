@@ -9,28 +9,32 @@ from app.models import User
 user_router = APIRouter(tags=["User"])
 
 @user_router.get("/logout")
-def logout(response: Response, current_user: User = Depends(get_current_user)):
+def logout(response: Response, current_user_id: int = Depends(get_current_user)):
     response.delete_cookie(config.JWT_ACCESS_COOKIE_NAME)
     return {"message": "Вы вышли из системы"}
 
 @user_router.get("/my_products")
-def get_all_products(current_user: User = Depends(get_current_user)):
-    return UserService().my_products(current_user.id)
+async def get_all_products(current_user_id: int = Depends(get_current_user)):
+    return await UserService().my_products(current_user_id)
 
 @user_router.get("/check_product")
-def get_product(product_id : int, current_user: User = Depends(get_current_user)):
-    return UserService().check_product(product_id)
+async def get_product(product_id : int, current_user_id: int = Depends(get_current_user)):
+    return await UserService().check_product(product_id)
 
 @user_router.delete("/delete_product")
-def delete_product(product_id : int, current_user: User = Depends(get_current_user)):
-    return UserService().delete_product(current_user, product_id)
+async def delete_product(product_id : int, current_user_id: int = Depends(get_current_user)):
+    return await UserService().delete_product(current_user_id, product_id)
 
 @user_router.post("/start_auction")
-def start_auction(productbody: ProductBody, bg: BackgroundTasks, current_user: User = Depends(get_current_user)):
-    return UserService().start_auction(productbody, current_user, bg)
+async def start_auction(productbody: ProductBody, bg: BackgroundTasks, current_user_id: int = Depends(get_current_user)):
+    return await UserService().start_auction(productbody, current_user_id, bg)
 
 
 @user_router.post("/make_bet")
-def make_bet(product_id : int, betbody: BetBody, current_user: User = Depends(get_current_user)):
-    return UserService().create_bet(current_user, product_id, betbody)
+async def make_bet(product_id : int, betbody: BetBody, current_user_id: int = Depends(get_current_user)):
+    return await UserService().create_bet(current_user_id, product_id, betbody)
 
+
+@user_router.get("/search")
+async def search(query: str, current_user_id: int = Depends(get_current_user)):
+    return await UserService().search_product(query)

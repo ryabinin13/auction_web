@@ -1,45 +1,62 @@
 from app.models import User
-from app.database import get_session
+from app.database import get_async_session
+# from app.database import get_session
 from app.repositories.baserepository import CRUDRepository, GetUserEmail
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 class UserRepository(CRUDRepository, GetUserEmail):
 
-    def create(self, data: dict):
-        with get_session() as db:
+    async def create(self, data: dict):
+        async with get_async_session() as db:
             user = User(**data)
             db.add(user)
-            db.commit()
-            
+            await db.commit() 
             return user.id
 
-    def get_id(self, id: int) -> User:
-        with get_session() as db:
-            return db.query(User).where(User.id == id).first()
-
-    def get_email(self, email: str) -> User:
-        with get_session() as db:
-            user = db.query(User).where(User.email == email).first()
+    async def get_id(self, id: int) -> User:
+        async with get_async_session() as db:
+            query = select(User).where(User.id == id)
+            result = await db.execute(query)
+            user = result.scalar_one_or_none()
             return user
 
-    def getall(self):
-        with get_session() as db:
-            return db.query(User).all()
+    async def get_email(self, email: str) -> User:
+        async with get_async_session() as db:
+            query = select(User).where(User.email == email)
+            result = await db.execute(query)
+            user = result.scalar_one_or_none()
+            return user
 
-    def update(self, user: User, data: dict) -> None:
-        with get_session() as db:
-            user = User(**data)
-            db.merge(user)
-            db.commit()
+    async def getall(self):
+        async with get_async_session() as db:
+            return await db.query(User).all()
+
+    async def update(self, user: User, data: dict) -> None:
+        async with get_async_session() as db:
+            for key, value in data.items():
+                setattr(user, key, value)
+            
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
+
             return None
 
-    def delete(self, id: int) -> None:
-        with get_session() as db:
+    async def delete(self, id: int) -> None:
+        async with get_async_session() as db:
             user = db.query(User).filter(User.id == id).delete()
-            db.commit()
+            await db.commit()
             return None
 
-    def get_products(self, id: int):
-        with get_session() as db:
-            return db.query(User).where(User.id == id).first().products_create
+    async def get_products(self, id: int):
+        async with get_async_session() as db:
+            query = select(User).where(User.id == int(id)).options(selectinload(User.products_create))
+            user = await db.execute(query)
+            user = user.scalar_one_or_none()
 
+            if user is None:
+                return []
+
+            return user.products_create
 
