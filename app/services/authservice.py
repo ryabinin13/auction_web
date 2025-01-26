@@ -4,13 +4,15 @@ from app.schemas import LoginBody
 from werkzeug.security import check_password_hash
 from fastapi import HTTPException, Request
 from app.auth import security, config
-from app.models import User
+from app.db.models import User
 import jwt
 
 class AuthService:
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
 
     async def authenticate_user(self, loginbody: LoginBody):
-        user = await UserRepository().get_email(loginbody.email)
+        user = await self.user_repository.get_email(loginbody.email)
         if not user:
             raise HTTPException(status_code=404, detail="Пользователя с таким email не существует")
         if not check_password_hash(user.password_hash, loginbody.password):

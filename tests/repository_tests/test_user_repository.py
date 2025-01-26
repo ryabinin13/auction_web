@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from app.models import User
+from app.db.models import User
 from app.repositories.userrepository import UserRepository
 from sqlalchemy.exc import SQLAlchemyError
 

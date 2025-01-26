@@ -1,6 +1,6 @@
 from datetime import datetime
 from fastapi import HTTPException
-from app.models import ProductStatus, User
+from app.db.models import ProductStatus, User
 from app.repositories.userrepository import UserRepository
 from app.repositories.productrepository import ProductRepository
 from app.repositories.betrepository import BetRepository
@@ -9,6 +9,18 @@ from fastapi import BackgroundTasks
 from app.tasks import check_end_auction
 
 class UserService:
+    def __init__(
+        self, 
+        user_repository: UserRepository,
+        product_repository: ProductRepository,
+        bet_repository: BetRepository
+    ):
+        self.user_repository = user_repository
+        self.product_repository = product_repository
+        self.bet_repository = bet_repository
+
+    async def get_user(self):
+        return await self.user_repository.get_id(1)
     
     async def start_auction(self, data: ProductBody, user_id: int, bg: BackgroundTasks):
         data_dict = data.model_dump()
@@ -17,14 +29,14 @@ class UserService:
         data_dict['current_price'] = data_dict['start_price']
         data_dict['user_id'] = user_id
         
-        product_id = await ProductRepository().create(data_dict)
+        product_id = await self.product_repository.create(data_dict)
         bg.add_task(check_end_auction, product_id)
         return product_id
     
     
     async def create_bet(self, user_id: int, productid: int, data: BetBody):
         data_dict = data.model_dump()
-        product = await ProductRepository().get_id(productid)
+        product = await self.product_repository.get_id(productid)
         if not product:
             raise HTTPException(status_code=404, detail="Товар не найден")
         
@@ -41,22 +53,25 @@ class UserService:
 
         data_dict['product_id'] = product.id
         data_dict['user_id'] = user_id
-        await ProductRepository().update(product, product_data)
-        return await BetRepository().create(data_dict)
+        await self.product_repository.update(product, product_data)
+        return await self.bet_repository.create(data_dict)
     
 
     async def delete_product(self, user_id: int, product_id: int):
-        products = await UserRepository().get_products(user_id)
+        products = await self.user_repository.get_products(user_id)
         for product in products:
             if product.id == product_id:
-                return await ProductRepository().delete(product_id)
+                bids = await self.product_repository.get_bids(product_id)
+                for bet in bids:
+                    await self.bet_repository.delete(bet.id)
+                return await self.product_repository.delete(product_id)
         raise HTTPException(status_code=404, detail="Товар не найден")
     
     async def my_products(self, user_id: int):
-        return await UserRepository().get_products(user_id)
+        return await self.user_repository.get_products(user_id)
     
     async def check_product(self, product_id: int):
-        return await ProductRepository().get_id(product_id)
+        return await self.product_repository.get_id(product_id)
     
     async def search_product(self, query: str):
-        return await ProductRepository().get_search(query)
+        return await self.product_repository.get_search(query)

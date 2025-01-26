@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.routers.users import user_router
 from app.routers.home import home_router
 # from app.database import Base, engine
-from app.database import Base, async_engine
+from app.db.database import Base, async_engine
 import uvicorn
 
 app = FastAPI()

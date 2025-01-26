@@ -1,6 +1,6 @@
 import asyncio
 import time
-from app.models import ProductStatus
+from app.db.models import ProductStatus
 from app.repositories.productrepository import ProductRepository
 from datetime import datetime
 

@@ -10,7 +10,7 @@ services:
     ports:
       - 8008:8000
     environment:
-      - DATABASE_URL=postgresql+asyncpg://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
+      - DATABASE_URL=postgresql+asyncpg://auction:auction@db:5432/auction
     depends_on:
       - db
   db:
@@ -21,9 +21,15 @@ services:
     expose:
       - 5432
     environment:
-      - POSTGRES_USER=fastapi_traefik
-      - POSTGRES_PASSWORD=fastapi_traefik
-      - POSTGRES_DB=fastapi_traefik
+      - POSTGRES_USER=auction
+      - POSTGRES_PASSWORD=auction
+      - POSTGRES_DB=auction
+
+  cache:
+    image: redis:7.2.4-alpine
+    restart: always
+    ports:
+      - 6379:6379
 
 volumes:
   postgres_data:
