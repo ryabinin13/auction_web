@@ -23,8 +23,3 @@ class CRUDRepository(ABC):
     def delete(self, id: int):
         pass
 
-class GetUserEmail(ABC):
-    
-    @abstractmethod
-    def get_email(self, email):
-        pass

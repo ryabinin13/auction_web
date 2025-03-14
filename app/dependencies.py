@@ -16,7 +16,7 @@ def get_current_user(request: Request):
         raise HTTPException(status_code=401, detail="Token not found")
 
     try:
-        payload = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=[config.JWT_ALGORITHM]) # укажите алгоритм
+        payload = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=[config.JWT_ALGORITHM]) 
         user_id = payload.get("uid")
         if user_id is None:
             raise ValueError("Invalid token payload: 'uid' claim not found")
