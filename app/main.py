@@ -3,9 +3,15 @@ from app.routers.users import user_router
 from app.routers.home import home_router
 # from app.database import Base, engine
 from app.db.database import Base, async_engine
-import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+app.add_middleware(
+   CORSMiddleware,
+   allow_origins=["*"]
+)
 
 app.include_router(user_router)
 app.include_router(home_router)
@@ -19,5 +25,3 @@ async def create_database():
 async def startup_event():
     await create_database()
 
-if __name__ == "__main__":
-       uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
