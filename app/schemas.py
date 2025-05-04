@@ -5,7 +5,6 @@ from datetime import datetime
 class RegistrationBody(BaseModel):
     username: str
     email: EmailStr
-    birthday: date
     phone_number: str
     password1: str
     password2: str
